@@ -1,0 +1,67 @@
+MILESTONE 9
+
+Our dataset 2 in MASSACHUSETTS_cdc_modeled has the following tables:
+ - MASSACHUSETTS_Each_survey_member
+ - MASSACHUSETTS_DEMOGRAPHIC
+ - MASSACHUSETTS_OVERALL_Health_Status
+ - MASSACHUSETTS_HEALTH_CARE
+ - MASSACHUSETTS_TOBACCO_USE
+ 
+We are facing the same issues we did with Massachusetts (Dataset 2) as we did with Texas (Dataset 1) - which is PK and FK violations. This is something that needs to be fixed by removing duplicate SEQNOs.
+ 
+When we did COUNT(SEQNO) and COUNT(distinct SEQNO) we got different values for all tables. However, the COUNT(distinct SEQNO) for all tables but one gave a value of 59122. This means that there are 59122 unique SEQNOs in each table, and the duplicates need to be removed. Once the duplicate SEQNOs are removed, 
+
+Identify relationships between the modeled table: The relationships are exactly what we foung in the primary dataset. This is shown in the ERD diagrams. The tables are related by the SEQNO values.
+
+All the data types have been cast to INT using the CAST function.
+
+
+MILESTONE 6
+Standardization and normalization problems present in our data: 
+ - There are NULL values present in the all tables besides DEMOGRAPHIC, which we cleansed in MILESTONE 5. These occurred when some of the survey participants chose not to answer some of the questions in the survey. We changed these values to 0.
+ - WEIGHT2 gave respondants both metric and imperial options for submitting their weight, so we converted kilograms to pounds. 
+ - HEIGHT3 included both metric and imperial options for submitting height, so we converted meters into inches. 
+ - We tested all variables for values not allowed by the BRFSS codebook using BigQuery. The only values outside of the allowed responses were in CHILDREN, which had two outliers, at 28 and 85 children. We limited number of children allowed to be less than or equal to 20. 
+ 
+#Ethan gave the go-ahead for justifying our foreign key violations check by only verifying that no foreign key violation error messages were given when code is run on Jupyter Notebooks. 
+#SEQNO was verified to be the primary key in DEMOCRAPHIC and foreign key everywhere else in Jupyter Notebooks by checking that it is unique in the DataFlowRunner tables and equal to the number of rows limited (50 rows) in DirectRunner tables.
+
+Additioinally, we noticed that our HEALTH_CARE_Beam and HEALTH_CARE_Beam_DF tables did not have a primary key because count(SEQNO) and count distinct(SEQNO) gave different values. We looked back to see if this was a problem in the initial HEALTH_CARE table, and it appears as if this was a problem from the very beginning. Unfortunately, the count distinct leads to a smaller number (24102) than the count distinct for the other tables (35019), therefore the main issue is not that there are duplicates, but that there are fewer SEQNOs than the other tables. Therefore, looking into the future, we could potentially avoid the HEALTH_CARE table from our dataset and only consider the other tables. Additionally, running HEALTH_CARE_Beam even with the limit 50 clause gave us a 100 rows which is also something that needs to be fixed. 
+ 
+Questions (these questions were answered during TA office hours): 
+#1. How should we test for out of bounds responses
+#2. What does this mean (on rubric)? "-X for each missing <table>_beam.py/<table>_beam_dataflow.py where X is dependent on the number of transforms you have. If you have 2, -50 each. 3, -33 each, and so on."
+#3. Is this a sufficient response to check whether we have foreign key violations? "We determined that we do not have any foreign key violations because our primary key SEQNO is identical to the foreign key in all other tables." If not, how do we verify that we have no foreign key violations?
+#4. Can we copy and modify our existing pipeline code? 
+
+
+MILESTONE 5 
+
+Standardization and normalization problems present in our data:
+- There are NULL values present in some of the tables. These occurred when some of the survey participants chose not to answer some of the questions in the survey. We will change these values to 0.
+- Another issue we could tackle (in future milestones) is identifing values that could be out of range. For example if the user entered a height or weight value that seems unreasonable and might skew our data, we should change it to a more realistic value. 
+
+We decided to perform the data cleansing on the DEMOGRAPHICS table because it contains mainly filled cells with a few nulls for questions which were not applicable to the responandant. We used the code from https://github.com/cs327e-spring2020/snippets/wiki/Beam--%26-Dataflow-Setup to complete the setup of the pipeline. 
+
+Questions (these questions were answered during TA office hours): 
+#1. How do we cast all the variables with float values to integers? Our previous casting for Milestone 4 did not successfully transform. 
+#2. What value should we cast to when a question's cell is left blank because the question was not applicable to the respondance? 
+#3. Do we need to read from an external source (Beam source API) or from in-memory in the driver program? 
+#4. How can we test our code to make sure it compiles? Can we use print statements? 
+#5. How can we get bqsource (line 54)?
+#6. Do we need to do WriteToText?
+#7. How do we execute pipeline? 
+
+MILESTONE 4
+
+We decided to look only at the data within Texas (State = 48). We also decided to only look at data from 2011, 2012 and 2013.
+
+The primary key is the SEQNO. The SEQNO is present in all tables, and is unique. 
+
+Tables were created based on their entity types. All the tables are of the same entity. These entities correspond to the categories in the BRFSS 2015 Codebook Report, which describes the dataset (https://www.cdc.gov/brfss/annual_data/2015/pdf/codebook15_llcp.pdf). We then UNIONED all the tables across the years 2011, 2012 and 2013. Another thing we would like to note is that we did not use the join function for creating tables of the same entity, instead we chose the columns we knew were of the same entity when creating the table. Our cdc_joins.ipynb file has examples of us using joins to determine relationships within the data.
+
+Some of the values are null. For example, in the TOBACCO_USE table, some  values are null because not everyone smokes tobacco. We think that this is okay for now. Later, we might look into removing the null values and clean the data further.
+
+All our data values are in FLOAT type.  We don't have a problem with our values being FLOAT type. When each person filled out the survey, they have the option to choose specific floats. For example, the question for SMOKE100 is "Have you smoked at least 100 cigarettes in your entire life?". The person can choose 1.0, 2.0, 7.0 or 9.0. 1.0 means "Yes", 2.0 means "No", 7.0 means "Don’t know/Not Sure" and 9 means "Refused". This is why all our data is in floats, because all the answers are in terms of numbers. Therefore, we did not have to do any casting. We tried to make all the floats into INT64 in the cdc_modeled_.ipynb file, but this was not successful because the types remained floats. We are okay with the type remaining a float for all of our data.  
+
+Lastly, Mileston 4 asked us to name the erd pdf as \<source>_erd_modeled.pdf. We were unable to put "\' in the name of the file on pdf on both our computers. Therefore, we names it just <source>_erd_modeled.pdf.

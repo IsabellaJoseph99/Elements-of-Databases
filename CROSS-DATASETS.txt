@@ -1,0 +1,27 @@
+Think of 3 interesting queries that span your primary and secondary datasets
+
+QUERY 1:
+For our first query, we expect to compare Education vs Income in the states of Texas and Massachusetts.
+We will do this by using EDUCA and INCOME2 from the DEMOGRAPHICs table. 
+We will join the demographic tabes of both Texas and Massachusetts based on equal EDUCA values, and find the average income for each in each state. 
+This will be done using an INNER JOIN. 
+To calculate the average, we will use the aggregate function AVERAGE().
+
+QUERY 2:
+We would like to compare the general, mental and physical health in in the states of Texas and Massachusetts based on SEX. 
+We will do this by using GENHLTH, PHYSHLTH and MENTHLTH from the OVERALL_Health_Status table and the SEX from the demographics table.
+We will join the Texas and Massachusetts tables on equal SEX values, and calculate an average valye for GENHLTH, PHYSHLTH and MENTHLTH.
+This will be done using an INNER JOIN. 
+To calculate the average, we will use the aggregate function AVERAGE().
+
+QUERY 3:
+Lastly, we want to see if there is any relationship between smoking and income in each state. 
+We will use the SMOKE100 values from the TOBACCO_USE tables, and the INCOME2 values from the DEMOGRAPHIC tables.
+We will join both tables on equaly INCOME2 brackets, and see how SMOKE100 values vary.
+This will be done using an INNER JOIN. 
+
+TRANSFORMATIONS:
+The data set needs to be cleaned. We need to remove duplicates from SEQNO which is the PK of our tables. 
+We then need to run the exact transformations we ran on the first dataset which are:
+ - WEIGHT2 gave respondants both metric and imperial options for submitting their weight, so we need to convert kilograms to pounds. 
+ - HEIGHT3 included both metric and imperial options for submitting height, so we need to convert meters into inches. 
